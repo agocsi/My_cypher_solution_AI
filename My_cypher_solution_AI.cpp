@@ -15,6 +15,8 @@ public:
   stringstate state;
   void setText(string Text) { text = Text; }
   void setState(stringstate S) { state = S; }
+  string getText() { return text; }
+  stringstate getState() { return state; }
   void format() {
     if (state == stringstate::plain_text) {
       int c;
@@ -67,12 +69,12 @@ public:
   string cypher() {
     string line;
     string returned;
-    for (int i = 0; i < static_cast<int>(text_to_code.text.length()); i++) {
+    for (int i = 0; i < static_cast<int>(text_to_code.getText().length()); i++) {
       int j = 0;
-      while (codetable[j].at(0) != text_to_code.text.at(i)) {
+      while (codetable[j].at(0) != text_to_code.getText().at(i)) {
         j++;
       }
-      int k = codetable[0].find(key.text.at(i));
+      int k = codetable[0].find(key.getText().at(i));
       returned.append(1, codetable[j].at(k));
     }
     return returned;
@@ -80,28 +82,28 @@ public:
   string decypher() {
     string line;
     string returned;
-    for (int i = 0; i < static_cast<int>(text_to_code.text.length()); i++) {
+    for (int i = 0; i < static_cast<int>(text_to_code.getText().length()); i++) {
       int j = 0;
-      while (codetable[j].at(0) != key.text.at(i)) {
+      while (codetable[j].at(0) != key.getText().at(i)) {
         j++;
       }
-      int k = codetable[0].find(text_to_code.text.at(i));
+      int k = codetable[0].find(text_to_code.getText().at(i));
       returned.append(1, codetable[j].at(k));
     }
     return returned;
   }
 };
 
-Input set_key_l(Input key_used, Input text_used) {
+Input set_key_length(Input key_used, Input text_used) {
   if ((key_used.state == stringstate::codeable_upper) &&
       (text_used.state == stringstate::codeable_upper)) {
     int t, k;
     Input key_l;
-    for (t = 0, k = 0; t < static_cast<int>(text_used.text.length());
+    for (t = 0, k = 0; t < static_cast<int>(text_used.getText().length());
          t++, k++) {
-      if (k >= static_cast<int>(key_used.text.length()))
+      if (k >= static_cast<int>(key_used.getText().length()))
         k = 0;
-      key_l.text.append(string(1, (char)(key_used.text[k])));
+      key_l.setText(key_l.getText().append(string(1, (char)(key_used.getText()[k]))));
     }
     key_l.setState(stringstate::code_ready);
     return key_l;
@@ -128,13 +130,13 @@ int main() {
   system("chcp 1250");
   system("cls");
 
-  string textin;
+  string text_in;
   string key_in;
   // Kérjen be a felhasználótól egy maximum 255 karakternyi, nem üres szöveget!
   // A továbbiakban ez a nyílt szöveg.
   cout << "Add meg a kódolandó szöveget (maximum 255 karakter):\n";
-  while (getline(cin,textin)) {
-    if (textin.empty() || textin.length() > 255) {
+  while (getline(cin,text_in)) {
+    if (text_in.empty() || text_in.length() > 255) {
       cout << "Meg kell adni kódolandó szöveget, ami maximum 255 karakter "
               "hosszú lehet!!"
            << endl;
@@ -142,18 +144,18 @@ int main() {
       break;
     }
   };
-  cout << "Nyílt szöveg: \n" << textin << endl;
-  Input text_in;
-  text_in.setText(textin);
-  text_in.setState(stringstate::plain_text);
+  cout << "Nyílt szöveg: \n" << text_in << endl;
+  Input text_input;
+  text_input.setText(text_in);
+  text_input.setState(stringstate::plain_text);
   // Alakítsa át a nyílt szöveget, hogy a késõbbi kódolás feltételeinek
   // megfeleljen! A kódolás feltételei: A magyar ékezetes karakterek helyett
   // ékezetmenteseket kell használni. (Például á helyett a; õ helyett o stb.) A
   // nyílt szövegben az átalakítás után csak az angol ábécé betûi
   // szerepelhetnek. A nyílt szöveg az átalakítás után legyen csupa nagybetûs.
-  text_in.format();
+  text_input.format();
   //Írja ki a képernyõre az átalakított nyílt szöveget!
-  cout << "Szöveg átalakítása: \n" << text_in.text << endl;
+  cout << "Szöveg átalakítása: \n" << text_input.getText() << endl;
 
   // Kérjen be a felhasználótól egy maximum 5 karakteres, nem üres kulcsszót! A
   // kulcsszó a kódolás feltételeinek megfelelõ legyen! (Sem átalakítás, sem
@@ -167,23 +169,23 @@ int main() {
       break;
     }
   };
-  Input keyin;
-  keyin.setText(key_in);
-  keyin.setState(stringstate::codeable);
+  Input key_input;
+  key_input.setText(key_in);
+  key_input.setState(stringstate::codeable);
   // Alakítsa át a kulcsszót csupa nagybetûssé!
-  keyin.format();
+  key_input.format();
   // kódolás elsõ lépéseként fûzze össze a kulcsszót egymás után annyiszor, hogy
   // az így kapott karaktersorozat (továbbiakban kulcsszöveg) hossza legyen
   // egyenlõ a kódolandó szöveg hosszával!
-  Input used_key = set_key_l(keyin, text_in);
+  Input used_key = set_key_length(key_input, text_input);
 
   cout << "Kulcsszó: \n" << key_in << endl;
   //Írja ki a képernyõre az így kapott kulcsszöveget!
-  cout << "Kulcsszó nagybetûssé alakítása: \n" << keyin.text << endl;
+  cout << "Kulcsszó nagybetûssé alakítása: \n" << key_input.getText() << endl;
 
-  cout << "Nyílt szöveg és kulcszöveg együtt: \n"
-       << text_in.text << endl
-       << used_key.text << endl;
+  cout << "Nyílt szöveg és kulcsszöveg együtt: \n"
+       << text_input.getText() << "\n"
+       << used_key.getText() << "\n";
   // A kódolás második lépéseként a következõket hajtsa végre! Vegye az
   // átalakított nyílt szöveg elsõ karakterét, és keresse meg avtabla.dat
   // fájlból beolvasott táblázat elsõ oszlopában! Ezután vegye a kulcsszöveg
@@ -193,7 +195,7 @@ int main() {
   // is!
   array<string, 26> cdf = read_codefile("vtabla.dat");
   Cyphering c1;
-  c1.init(used_key, text_in, cdf);
+  c1.init(used_key, text_input, cdf);
   string coded_text = c1.cypher();
 
   //Írja ki a képernyõre-
