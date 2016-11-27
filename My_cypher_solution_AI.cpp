@@ -9,63 +9,56 @@ using namespace std;
 
 enum class stringstate { plain_text, codeable, codeable_upper, code_ready };
 
-//Change hungarian special characters to their english basic counterparts, keep english alphabetic characters, change everything else to whitespace for easier erase
+// Change hungarian special characters to their english basic counterparts, keep
+// english alphabetic characters, change everything else to whitespace for
+// easier erase
 char angletize(char ch) {
-	if (ch >= 'a' && ch <= 'z') {
-	}
-	else if (ch >= 'A' && ch <= 'Z') {
-		ch = ch + 32;
-	}
-	else if (ch == static_cast<char>(-31) || ch == static_cast<char>(-63)) {
-		ch = 'a';
-	}
-	else if (ch == static_cast<char>(-23) || ch == static_cast<char>(-55)) {
-		ch = 'e';
-	}
-	else if (ch == static_cast<char>(-19) || ch == static_cast<char>(-51)) {
-		ch = 'i';
-	}
-	else if (ch == static_cast<char>(-13) || ch == static_cast<char>(-45) ||
-		ch == static_cast<char>(-10) || ch == static_cast<char>(-42) ||
-		ch == static_cast<char>(-11) || ch == static_cast<char>(-43)) {
-		ch = 'o';
-	}
-	else if (ch == static_cast<char>(-4) || ch == static_cast<char>(-36) ||
-		ch == static_cast<char>(-5) || ch == static_cast<char>(-37) ||
-		ch == static_cast<char>(-6) || ch == static_cast<char>(-38)) {
-		ch = 'u';
-	}
-	else {
-		ch = ' ';
-	}
-	return ch;
+  if (ch >= 'a' && ch <= 'z') {
+  } else if (ch >= 'A' && ch <= 'Z') {
+    ch = ch + 32;
+  } else if (ch == static_cast<char>(-31) || ch == static_cast<char>(-63)) {
+    ch = 'a';
+  } else if (ch == static_cast<char>(-23) || ch == static_cast<char>(-55)) {
+    ch = 'e';
+  } else if (ch == static_cast<char>(-19) || ch == static_cast<char>(-51)) {
+    ch = 'i';
+  } else if (ch == static_cast<char>(-13) || ch == static_cast<char>(-45) ||
+             ch == static_cast<char>(-10) || ch == static_cast<char>(-42) ||
+             ch == static_cast<char>(-11) || ch == static_cast<char>(-43)) {
+    ch = 'o';
+  } else if (ch == static_cast<char>(-4) || ch == static_cast<char>(-36) ||
+             ch == static_cast<char>(-5) || ch == static_cast<char>(-37) ||
+             ch == static_cast<char>(-6) || ch == static_cast<char>(-38)) {
+    ch = 'u';
+  } else {
+    ch = ' ';
+  }
+  return ch;
 }
 
 // String with state, to format the inputted data
 class Input {
-private:
-	string text;
-	stringstate state;
+ private:
+  string text;
+  stringstate state;
 
-public:
-	void setText(string Text) { text = Text; };
-	void setState(stringstate S) { state = S; };
-	string getText() const { return text; }
-	stringstate getState() const { return state; }
-	void format() {
-		if (state == stringstate::plain_text) {
-			string textout;
-			transform(text.begin(), text.end(), text.begin(), angletize);
-			text.erase(remove_if(text.begin(), text.end(),
-				isspace),
-				text.end());
-			state = stringstate::codeable;
-		}
-		if (state == stringstate::codeable) {
-			transform(text.begin(), text.end(), text.begin(), toupper);
-			state = stringstate::codeable_upper;
-		}
-	}
+ public:
+  void setText(string Text) { text = Text; };
+  void setState(stringstate S) { state = S; };
+  string getText() const & { return text; }
+  stringstate getState() const { return state; }
+  void format() {
+    if (state == stringstate::plain_text) {
+      string textout;
+      transform(text.begin(), text.end(), text.begin(), angletize);
+      text.erase(remove_if(text.begin(), text.end(), isspace), text.end());
+      state = stringstate::codeable;
+    }
+    if (state == stringstate::codeable) {
+      transform(text.begin(), text.end(), text.begin(), toupper);
+      state = stringstate::codeable_upper;
+    }
+  }
 };
 
 // Inputs with the used codetable to do the actual cyphering
@@ -84,17 +77,17 @@ class Cyphering {
 
   string cypher() {
     string returned;
-	int count = 0;
+    int count = 0;
     for (char ch : text_to_code.getText()) {
-		int row = 0;
+      int row = 0;
       while (codetable[row].at(0) != ch) {
         row++;
       }
-	  int column = codetable[0].find(key.getText().at(count));
-	  returned.append(1, codetable[row].at(column));
-	  count++;
+      int column = codetable[0].find(key.getText().at(count));
+      returned.append(1, codetable[row].at(column));
+      count++;
     }
-	return returned;
+    return returned;
   }
 };
 
@@ -103,15 +96,14 @@ Input set_key_length(Input key_used, Input text_used) {
   if ((key_used.getState() == stringstate::codeable_upper) &&
       (text_used.getState() == stringstate::codeable_upper)) {
     Input key_l;
-	string new_key = text_used.getText();
-	int t = 0;
-	for (char& ch : new_key)
-	{
-		int key_at = div(t, key_used.getText().length()).rem;
-		ch = key_used.getText().at(key_at);
-		t++;
-	}
-	key_l.setText(new_key);
+    string new_key = text_used.getText();
+    int t = 0;
+    for (char& ch : new_key) {
+      int key_at = div(t, key_used.getText().length()).rem;
+      ch = key_used.getText().at(key_at);
+      t++;
+    }
+    key_l.setText(new_key);
     key_l.setState(stringstate::code_ready);
     return key_l;
   } else
@@ -194,7 +186,7 @@ int main() {
        << text_input.getText() << "\n"
        << used_key.getText() << "\n";
   // A kódolás második lépéseként a következõket hajtsa végre! Vegye az
-  // átalakított nyílt szöveg elsõ karakterét, és keresse meg avtabla.dat
+  // átalakított nyílt szöveg elsõ karakterét, és keresse meg a vtabla.dat
   // fájlból beolvasott táblázat elsõ oszlopában! Ezután vegye a kulcsszöveg
   // elsõ karakterét, és keresse meg a táblázat elsõ sorában! Az így
   // kiválasztott sor és oszlop metszéspontjában lévõ karakter lesz a kódolt
@@ -202,7 +194,7 @@ int main() {
   // is!
   array<string, 26> cdf = read_codefile("vtabla.dat");
   Cyphering c1 = Cyphering(used_key, text_input, cdf);
-   string coded_text = c1.cypher();
+  string coded_text = c1.cypher();
 
   //Írja ki a képernyõre-
   cout << "Kódolt szöveg: \n" << coded_text << "\n";
