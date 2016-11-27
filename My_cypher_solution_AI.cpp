@@ -9,57 +9,63 @@ using namespace std;
 
 enum class stringstate { plain_text, codeable, codeable_upper, code_ready };
 
+//Change hungarian special characters to their english basic counterparts, keep english alphabetic characters, change everything else to whitespace for easier erase
 char angletize(char ch) {
-  if (ch >= 'a' && ch <= 'z') {
-  } else if (ch >= 'A' && ch <= 'Z') {
-    ch = ch + 32;
-  } else if (ch == static_cast<char>(-31) || ch == static_cast<char>(-63)) {
-    ch = 'a';
-  } else if (ch == static_cast<char>(-23) || ch == static_cast<char>(-55)) {
-    ch = 'e';
-  } else if (ch == static_cast<char>(-19) || ch == static_cast<char>(-51)) {
-    ch = 'i';
-  } else if (ch == static_cast<char>(-13) || ch == static_cast<char>(-45) ||
-             ch == static_cast<char>(-10) || ch == static_cast<char>(-42) ||
-             ch == static_cast<char>(-11) || ch == static_cast<char>(-43)) {
-    ch = 'o';
-  } else if (ch == static_cast<char>(-4) || ch == static_cast<char>(-36) ||
-             ch == static_cast<char>(-5) || ch == static_cast<char>(-37) ||
-             ch == static_cast<char>(-6) || ch == static_cast<char>(-38)) {
-    ch = 'u';
-  } else {
-    ch = ' ';
-  }
-  return ch;
+	if (ch >= 'a' && ch <= 'z') {
+	}
+	else if (ch >= 'A' && ch <= 'Z') {
+		ch = ch + 32;
+	}
+	else if (ch == static_cast<char>(-31) || ch == static_cast<char>(-63)) {
+		ch = 'a';
+	}
+	else if (ch == static_cast<char>(-23) || ch == static_cast<char>(-55)) {
+		ch = 'e';
+	}
+	else if (ch == static_cast<char>(-19) || ch == static_cast<char>(-51)) {
+		ch = 'i';
+	}
+	else if (ch == static_cast<char>(-13) || ch == static_cast<char>(-45) ||
+		ch == static_cast<char>(-10) || ch == static_cast<char>(-42) ||
+		ch == static_cast<char>(-11) || ch == static_cast<char>(-43)) {
+		ch = 'o';
+	}
+	else if (ch == static_cast<char>(-4) || ch == static_cast<char>(-36) ||
+		ch == static_cast<char>(-5) || ch == static_cast<char>(-37) ||
+		ch == static_cast<char>(-6) || ch == static_cast<char>(-38)) {
+		ch = 'u';
+	}
+	else {
+		ch = ' ';
+	}
+	return ch;
 }
 
 // String with state, to format the inputted data
 class Input {
- private:
-  string text;
-  stringstate state;
+private:
+	string text;
+	stringstate state;
 
- public:
-  void setText(string Text) { text = Text; }
-  void setState(stringstate S) { state = S; }
-
-  string getText() { return text; }
-  stringstate getState() { return state; }
-
-  void format() {
-    if (state == stringstate::plain_text) {
-      string textout;
-      transform(text.begin(), text.end(), text.begin(), angletize);
-      text.erase(remove_if(text.begin(), text.end(),
-                           isspace),
-                 text.end());
-      state = stringstate::codeable;
-    }
-    if (state == stringstate::codeable) {
-      transform(text.begin(), text.end(), text.begin(), toupper);
-      state = stringstate::codeable_upper;
-    }
-  }
+public:
+	void setText(string Text) { text = Text; };
+	void setState(stringstate S) { state = S; };
+	string getText() const { return text; }
+	stringstate getState() const { return state; }
+	void format() {
+		if (state == stringstate::plain_text) {
+			string textout;
+			transform(text.begin(), text.end(), text.begin(), angletize);
+			text.erase(remove_if(text.begin(), text.end(),
+				isspace),
+				text.end());
+			state = stringstate::codeable;
+		}
+		if (state == stringstate::codeable) {
+			transform(text.begin(), text.end(), text.begin(), toupper);
+			state = stringstate::codeable_upper;
+		}
+	}
 };
 
 // Inputs with the used codetable to do the actual cyphering
@@ -68,29 +74,27 @@ class Cyphering {
   Input key;
   Input text_to_code;
   array<string, 26> codetable;
+
  public:
-  void setKey(Input Key) { key = Key; }
-  void setText_to_code(Input Text_to_code) { text_to_code = Text_to_code; }
-  void setCodetable(array<string, 26> Codetable) { codetable = Codetable; }
-  void init(Input Key, Input Text_to_code, array<string, 26> Codetable) {
-    setKey(Key);
-    setText_to_code(Text_to_code);
-    setCodetable(Codetable);
+  Cyphering(Input Key, Input Text_to_code, array<string, 26> Codetable) {
+    key = Key;
+    text_to_code = Text_to_code;
+    codetable = Codetable;
   };
 
   string cypher() {
-    string line;
     string returned;
-    for (int i = 0; i < static_cast<int>(text_to_code.getText().length());
-         i++) {
-      int j = 0;
-      while (codetable[j].at(0) != text_to_code.getText().at(i)) {
-        j++;
+	int count = 0;
+    for (char ch : text_to_code.getText()) {
+		int row = 0;
+      while (codetable[row].at(0) != ch) {
+        row++;
       }
-      int k = codetable[0].find(key.getText().at(i));
-      returned.append(1, codetable[j].at(k));
+	  int column = codetable[0].find(key.getText().at(count));
+	  returned.append(1, codetable[row].at(column));
+	  count++;
     }
-    return returned;
+	return returned;
   }
 };
 
@@ -98,15 +102,16 @@ class Cyphering {
 Input set_key_length(Input key_used, Input text_used) {
   if ((key_used.getState() == stringstate::codeable_upper) &&
       (text_used.getState() == stringstate::codeable_upper)) {
-    int t, k;
     Input key_l;
-    for (t = 0, k = 0; t < static_cast<int>(text_used.getText().length());
-         t++, k++) {
-      if (k >= static_cast<int>(key_used.getText().length()))
-        k = 0;
-      key_l.setText(
-          key_l.getText().append(string(1, static_cast<char>(key_used.getText()[k]))));
-    }
+	string new_key = text_used.getText();
+	int t = 0;
+	for (char& ch : new_key)
+	{
+		int key_at = div(t, key_used.getText().length()).rem;
+		ch = key_used.getText().at(key_at);
+		t++;
+	}
+	key_l.setText(new_key);
     key_l.setState(stringstate::code_ready);
     return key_l;
   } else
@@ -124,7 +129,6 @@ array<string, 26> read_codefile(string path) {
       codetable[rows] = line;
       rows++;
     }
-    myfile.close();
   }
   return codetable;
 };
@@ -142,12 +146,12 @@ int main() {
     if (text_in.empty() || text_in.length() > 255) {
       cout << "Meg kell adni kódolandó szöveget, ami maximum 255 karakter "
               "hosszú lehet!!"
-           << endl;
+           << "\n";
     } else {
       break;
     }
   };
-  cout << "Nyílt szöveg: \n" << text_in << endl;
+  cout << "Nyílt szöveg: \n" << text_in << "\n";
   Input text_input;
   text_input.setText(text_in);
   text_input.setState(stringstate::plain_text);
@@ -158,7 +162,7 @@ int main() {
   // szerepelhetnek. A nyílt szöveg az átalakítás után legyen csupa nagybetûs.
   text_input.format();
   //Írja ki a képernyõre az átalakított nyílt szöveget!
-  cout << "Szöveg átalakítása: \n" << text_input.getText() << endl;
+  cout << "Szöveg átalakítása: \n" << text_input.getText() << "\n";
 
   // Kérjen be a felhasználótól egy maximum 5 karakteres, nem üres kulcsszót! A
   // kulcsszó a kódolás feltételeinek megfelelõ legyen! (Sem átalakítás, sem
@@ -167,7 +171,7 @@ int main() {
   while (getline(cin, key_in)) {
     if (key_in.empty() || key_in.length() > 5) {
       cout << "Meg kell adni kulcsot, ami maximum 5 karakter hosszú lehet!"
-           << endl;
+           << "\n";
     } else {
       break;
     }
@@ -182,9 +186,9 @@ int main() {
   // egyenlõ a kódolandó szöveg hosszával!
   Input used_key = set_key_length(key_input, text_input);
 
-  cout << "Kulcsszó: \n" << key_in << endl;
+  cout << "Kulcsszó: \n" << key_in << "\n";
   //Írja ki a képernyõre az így kapott kulcsszöveget!
-  cout << "Kulcsszó nagybetûssé alakítása: \n" << key_input.getText() << endl;
+  cout << "Kulcsszó nagybetûssé alakítása: \n" << key_input.getText() << "\n";
 
   cout << "Nyílt szöveg és kulcsszöveg együtt: \n"
        << text_input.getText() << "\n"
@@ -197,12 +201,11 @@ int main() {
   // szöveg elsõ karaktere. Ezt ismételje a kódolandó szöveg többi karakterével
   // is!
   array<string, 26> cdf = read_codefile("vtabla.dat");
-  Cyphering c1;
-  c1.init(used_key, text_input, cdf);
-  string coded_text = c1.cypher();
+  Cyphering c1 = Cyphering(used_key, text_input, cdf);
+   string coded_text = c1.cypher();
 
   //Írja ki a képernyõre-
-  cout << "Kódolt szöveg: \n" << coded_text << endl;
+  cout << "Kódolt szöveg: \n" << coded_text << "\n";
 
   //-és a kodolt.dat fájlba a kapott kódolt szöveget!
   ofstream kiirfile("kodolt.dat");
