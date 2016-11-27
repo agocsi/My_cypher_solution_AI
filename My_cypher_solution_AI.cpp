@@ -9,55 +9,100 @@ using namespace std;
 
 enum class stringstate { plain_text, codeable, codeable_upper, code_ready };
 
+char angletize(char ch) {
+  if (ch >= 'a' && ch <= 'z') {
+  } else if (ch >= 'A' && ch <= 'Z') {
+    ch = ch + 32;
+  } else if (ch == static_cast<char>(-31) || ch == static_cast<char>(-63)) {
+    ch = 'a';
+  } else if (ch == static_cast<char>(-23) || ch == static_cast<char>(-55)) {
+    ch = 'e';
+  } else if (ch == static_cast<char>(-19) || ch == static_cast<char>(-51)) {
+    ch = 'i';
+  } else if (ch == static_cast<char>(-13) || ch == static_cast<char>(-45) ||
+             ch == static_cast<char>(-10) || ch == static_cast<char>(-42) ||
+             ch == static_cast<char>(-11) || ch == static_cast<char>(-43)) {
+    ch = 'o';
+  } else if (ch == static_cast<char>(-4) || ch == static_cast<char>(-36) ||
+             ch == static_cast<char>(-5) || ch == static_cast<char>(-37) ||
+             ch == static_cast<char>(-6) || ch == static_cast<char>(-38)) {
+    ch = 'u';
+  } else {
+    ch = ' ';
+  }
+  return ch;
+}
+
+// String with state, to format the inputted data
 class Input {
-public:
+ private:
   string text;
   stringstate state;
+
+ public:
   void setText(string Text) { text = Text; }
   void setState(stringstate S) { state = S; }
+
   string getText() { return text; }
   stringstate getState() { return state; }
+
   void format() {
     if (state == stringstate::plain_text) {
-      int c;
-      string textout;
-      for (c = 0; c <= static_cast<int>(text.length()); c++) {
-        if (text[c] >= 'a' && text[c] <= 'z') {
-          textout.append(string(1, (char)(text[c])));
-        } else if (text[c] >= 'A' && text[c] <= 'Z') {
-          textout.append(string(1, (char)(text[c] + 32)));
-        } else if (text[c] == -31 || text[c] == -63) {
-          textout.append(string(1, (char)(int('a'))));
-        } else if (text[c] == -23 || text[c] == -55) {
-          textout.append(string(1, (char)(int('e'))));
-        } else if (text[c] == -19 || text[c] == -51) {
-          textout.append(string(1, (char)(int('i'))));
-        } else if (text[c] == -13 || text[c] == -45 || text[c] == -10 ||
-                   text[c] == -42 || text[c] == -11 || text[c] == -43) {
-          textout.append(string(1, (char)(int('o'))));
-        } else if (text[c] == -4 || text[c] == -36 || text[c] == -5 ||
-                   text[c] == -37 || text[c] == -6 || text[c] == -38) {
-          textout.append(string(1, (char)(int('u'))));
-        }
-      }
+       string textout;
+      //for (char ch : text) {
+		  transform(text.begin(), text.end(), text.begin(), angletize);
+		  text.erase(remove_if(text.begin(), text.end(), [](char x) {return (!isalpha(x)||isspace(x));}),text.end());
+ /*       if (ch >= 'a' && ch <= 'z') {
+          textout.append(string(1, static_cast<char>(ch)));
+        } else if (ch >= 'A' && ch <= 'Z') {
+          textout.append(string(1, static_cast<char>(ch + 32)));
+        } else if (ch == static_cast<char>(-31) ||
+                   ch == static_cast<char>(-63)) {
+          textout.append(string(1, static_cast<char>(int('a'))));
+        } else if (ch == static_cast<char>(-23) ||
+                   ch == static_cast<char>(-55)) {
+          textout.append(string(1, static_cast<char>(int('e'))));
+        } else if (ch == static_cast<char>(-19) ||
+                   ch == static_cast<char>(-51)) {
+          textout.append(string(1, static_cast<char>(int('i'))));
+        } else if (ch == static_cast<char>(-13) ||
+                   ch == static_cast<char>(-45) ||
+                   ch == static_cast<char>(-10) ||
+                   ch == static_cast<char>(-42) ||
+                   ch == static_cast<char>(-11) ||
+                   ch == static_cast<char>(-43)) {
+          textout.append(string(1, static_cast<char>(int('o'))));
+        } else if (ch == static_cast<char>(-4) ||
+                   ch == static_cast<char>(-36) ||
+                   ch == static_cast<char>(-5) ||
+                   ch == static_cast<char>(-37) ||
+                   ch == static_cast<char>(-6) ||
+                   ch == static_cast<char>(-38)) {
+          textout.append(string(1, static_cast<char>(int('u'))));
+        }*/
+      //}
       state = stringstate::codeable;
-      text = textout;
+      /*text = textout;*/
     }
     if (state == stringstate::codeable) {
-      int c;
-      for (c = 0; c < static_cast<int>(text.length()); c++) {
-		  text[c] = static_cast<char>(toupper(text[c]));
-      }
+      //int c = 0;
+      //for (char ch : text) {
+      //  text[c] = static_cast<char>(toupper(text[c]));
+      //  c++;
+      //}
+		transform(text.begin(), text.end(), text.begin(), toupper);
       state = stringstate::codeable_upper;
     }
   }
 };
 
+// Inputs with the used codetable to do the actual cyphering
 class Cyphering {
-public:
+ private:
   Input key;
   Input text_to_code;
   array<string, 26> codetable;
+ public:
   void setKey(Input Key) { key = Key; }
   void setText_to_code(Input Text_to_code) { text_to_code = Text_to_code; }
   void setCodetable(array<string, 26> Codetable) { codetable = Codetable; }
@@ -66,10 +111,12 @@ public:
     setText_to_code(Text_to_code);
     setCodetable(Codetable);
   };
+
   string cypher() {
     string line;
     string returned;
-    for (int i = 0; i < static_cast<int>(text_to_code.getText().length()); i++) {
+    for (int i = 0; i < static_cast<int>(text_to_code.getText().length());
+         i++) {
       int j = 0;
       while (codetable[j].at(0) != text_to_code.getText().at(i)) {
         j++;
@@ -79,31 +126,20 @@ public:
     }
     return returned;
   }
-  string decypher() {
-    string line;
-    string returned;
-    for (int i = 0; i < static_cast<int>(text_to_code.getText().length()); i++) {
-      int j = 0;
-      while (codetable[j].at(0) != key.getText().at(i)) {
-        j++;
-      }
-      int k = codetable[0].find(text_to_code.getText().at(i));
-      returned.append(1, codetable[j].at(k));
-    }
-    return returned;
-  }
 };
 
+// Match key length to the text length
 Input set_key_length(Input key_used, Input text_used) {
-  if ((key_used.state == stringstate::codeable_upper) &&
-      (text_used.state == stringstate::codeable_upper)) {
+  if ((key_used.getState() == stringstate::codeable_upper) &&
+      (text_used.getState() == stringstate::codeable_upper)) {
     int t, k;
     Input key_l;
     for (t = 0, k = 0; t < static_cast<int>(text_used.getText().length());
          t++, k++) {
       if (k >= static_cast<int>(key_used.getText().length()))
         k = 0;
-      key_l.setText(key_l.getText().append(string(1, (char)(key_used.getText()[k]))));
+      key_l.setText(
+          key_l.getText().append(string(1, static_cast<char>(key_used.getText()[k]))));
     }
     key_l.setState(stringstate::code_ready);
     return key_l;
@@ -111,6 +147,7 @@ Input set_key_length(Input key_used, Input text_used) {
     exit(1);
 }
 
+// Read the codetable from the provided file
 array<string, 26> read_codefile(string path) {
   string line;
   ifstream myfile(path);
@@ -135,7 +172,7 @@ int main() {
   // Kérjen be a felhasználótól egy maximum 255 karakternyi, nem üres szöveget!
   // A továbbiakban ez a nyílt szöveg.
   cout << "Add meg a kódolandó szöveget (maximum 255 karakter):\n";
-  while (getline(cin,text_in)) {
+  while (getline(cin, text_in)) {
     if (text_in.empty() || text_in.length() > 255) {
       cout << "Meg kell adni kódolandó szöveget, ami maximum 255 karakter "
               "hosszú lehet!!"
@@ -161,7 +198,7 @@ int main() {
   // kulcsszó a kódolás feltételeinek megfelelõ legyen! (Sem átalakítás, sem
   // ellenõrzés nem kell!)
   cout << "Add meg a kulcsszót (maximum 5 karakter): \n";
-  while (getline(cin,key_in)) {
+  while (getline(cin, key_in)) {
     if (key_in.empty() || key_in.length() > 5) {
       cout << "Meg kell adni kulcsot, ami maximum 5 karakter hosszú lehet!"
            << endl;
