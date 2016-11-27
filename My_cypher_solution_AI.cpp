@@ -48,49 +48,15 @@ class Input {
 
   void format() {
     if (state == stringstate::plain_text) {
-       string textout;
-      //for (char ch : text) {
-		  transform(text.begin(), text.end(), text.begin(), angletize);
-		  text.erase(remove_if(text.begin(), text.end(), [](char x) {return (!isalpha(x)||isspace(x));}),text.end());
- /*       if (ch >= 'a' && ch <= 'z') {
-          textout.append(string(1, static_cast<char>(ch)));
-        } else if (ch >= 'A' && ch <= 'Z') {
-          textout.append(string(1, static_cast<char>(ch + 32)));
-        } else if (ch == static_cast<char>(-31) ||
-                   ch == static_cast<char>(-63)) {
-          textout.append(string(1, static_cast<char>(int('a'))));
-        } else if (ch == static_cast<char>(-23) ||
-                   ch == static_cast<char>(-55)) {
-          textout.append(string(1, static_cast<char>(int('e'))));
-        } else if (ch == static_cast<char>(-19) ||
-                   ch == static_cast<char>(-51)) {
-          textout.append(string(1, static_cast<char>(int('i'))));
-        } else if (ch == static_cast<char>(-13) ||
-                   ch == static_cast<char>(-45) ||
-                   ch == static_cast<char>(-10) ||
-                   ch == static_cast<char>(-42) ||
-                   ch == static_cast<char>(-11) ||
-                   ch == static_cast<char>(-43)) {
-          textout.append(string(1, static_cast<char>(int('o'))));
-        } else if (ch == static_cast<char>(-4) ||
-                   ch == static_cast<char>(-36) ||
-                   ch == static_cast<char>(-5) ||
-                   ch == static_cast<char>(-37) ||
-                   ch == static_cast<char>(-6) ||
-                   ch == static_cast<char>(-38)) {
-          textout.append(string(1, static_cast<char>(int('u'))));
-        }*/
-      //}
+      string textout;
+      transform(text.begin(), text.end(), text.begin(), angletize);
+      text.erase(remove_if(text.begin(), text.end(),
+                           isspace),
+                 text.end());
       state = stringstate::codeable;
-      /*text = textout;*/
     }
     if (state == stringstate::codeable) {
-      //int c = 0;
-      //for (char ch : text) {
-      //  text[c] = static_cast<char>(toupper(text[c]));
-      //  c++;
-      //}
-		transform(text.begin(), text.end(), text.begin(), toupper);
+      transform(text.begin(), text.end(), text.begin(), toupper);
       state = stringstate::codeable_upper;
     }
   }
