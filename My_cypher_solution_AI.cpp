@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum stringstate { plain_text, codeable, codeable_upper, code_ready };
+enum class stringstate { plain_text, codeable, codeable_upper, code_ready };
 
 class Input {
 public:
@@ -16,7 +16,7 @@ public:
   void setText(string Text) { text = Text; }
   void setState(stringstate S) { state = S; }
   void format() {
-    if (state == plain_text) {
+    if (state == stringstate::plain_text) {
       int c;
       string textout;
       for (c = 0; c <= static_cast<int>(text.length()); c++) {
@@ -38,15 +38,15 @@ public:
           textout.append(string(1, (char)(int('u'))));
         }
       }
-      state = codeable;
+      state = stringstate::codeable;
       text = textout;
     }
-    if (state == codeable) {
+    if (state == stringstate::codeable) {
       int c;
       for (c = 0; c < static_cast<int>(text.length()); c++) {
 		  text[c] = static_cast<char>(toupper(text[c]));
       }
-      state = codeable_upper;
+      state = stringstate::codeable_upper;
     }
   }
 };
@@ -93,8 +93,8 @@ public:
 };
 
 Input set_key_l(Input key_used, Input text_used) {
-  if ((key_used.state == codeable_upper) &&
-      (text_used.state == codeable_upper)) {
+  if ((key_used.state == stringstate::codeable_upper) &&
+      (text_used.state == stringstate::codeable_upper)) {
     int t, k;
     Input key_l;
     for (t = 0, k = 0; t < static_cast<int>(text_used.text.length());
@@ -103,7 +103,7 @@ Input set_key_l(Input key_used, Input text_used) {
         k = 0;
       key_l.text.append(string(1, (char)(key_used.text[k])));
     }
-    key_l.setState(code_ready);
+    key_l.setState(stringstate::code_ready);
     return key_l;
   } else
     exit(1);
@@ -145,7 +145,7 @@ int main() {
   cout << "Nyílt szöveg: \n" << textin << endl;
   Input text_in;
   text_in.setText(textin);
-  text_in.setState(plain_text);
+  text_in.setState(stringstate::plain_text);
   // Alakítsa át a nyílt szöveget, hogy a késõbbi kódolás feltételeinek
   // megfeleljen! A kódolás feltételei: A magyar ékezetes karakterek helyett
   // ékezetmenteseket kell használni. (Például á helyett a; õ helyett o stb.) A
@@ -169,7 +169,7 @@ int main() {
   };
   Input keyin;
   keyin.setText(key_in);
-  keyin.setState(codeable);
+  keyin.setState(stringstate::codeable);
   // Alakítsa át a kulcsszót csupa nagybetûssé!
   keyin.format();
   // kódolás elsõ lépéseként fûzze össze a kulcsszót egymás után annyiszor, hogy
