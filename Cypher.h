@@ -1,21 +1,23 @@
 #pragma once
-#include <iostream>
-#include <fstream>
 #include <array>
+#include <fstream>
 #include "Input.h"
-using namespace std;
+
+typedef std::array<std::string, 26> ctable;
+
 // Inputs with the used codetable to do the actual cyphering
 class Cyphering {
  private:
-  Input key;
-  Input text_to_code;
-  array<string, 26> codetable;
+  const Input& key;
+  const Input& text_to_code;
+  const ctable& codetable;
 
  public:
-  Cyphering(Input Key, Input Text_to_code, array<string, 26> Codetable);
-  void setCyph(Input Key, Input Text_to_code, array<string, 26> Codetable);
+  Cyphering(const Input& Key,
+            const Input& Text_to_code,
+            const ctable& Codetable);
 
-  string cypher();
+  std::string cypher();
 };
 // Read the codetable from the provided file
-array<string, 26> read_codefile(string path);
+ctable read_codefile(std::string path);

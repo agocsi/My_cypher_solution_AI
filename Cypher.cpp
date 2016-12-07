@@ -1,22 +1,14 @@
 #include "stdafx.h"
 #include "Cypher.h"
 
-void Cyphering::setCyph(Input Key,
-                               Input Text_to_code,
-                               array<string, 26> Codetable) {
-  key = Key;
-  text_to_code = Text_to_code;
-  codetable = Codetable;
-}
+Cyphering::Cyphering(const Input& Key,
+                     const Input& Text_to_code,
+                     const ctable& Codetable)
+    : key(Key), text_to_code(Text_to_code), codetable(Codetable){};
 
-Cyphering::Cyphering(Input Key,
-                            Input Text_to_code,
-                            array<string, 26> Codetable) {
-  setCyph(Key, Text_to_code, Codetable);
-}
-
-string Cyphering::cypher() {
-  string returned;
+// THE task itself, doing the cyphering
+std::string Cyphering::cypher() {
+  std::string returned;
   int count = 0;
   for (char ch : text_to_code.getText()) {
     int row = 0;
@@ -31,13 +23,13 @@ string Cyphering::cypher() {
 }
 
 // Read the codetable from the provided file
-array<string, 26> read_codefile(string path) {
-  string line;
-  ifstream myfile(path);
+ctable read_codefile(std::string path) {
+  std::string line;
+  std::ifstream myfile(path);
   int rows = 0;
-  array<string, 26> codetable;
+  ctable codetable;
   if (myfile.is_open()) {
-    while (getline(myfile, line)) {
+    while (std::getline(myfile, line)) {
       codetable[rows] = line;
       rows++;
     }

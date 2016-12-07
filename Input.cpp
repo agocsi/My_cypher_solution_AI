@@ -28,10 +28,42 @@ char angletize(char ch) {
   return ch;
 }
 
+inline void Input::setText(std::string Text) {
+  text = Text;
+}
+
+inline void Input::setState(stringstate S) {
+  state = S;
+}
+
+inline std::string Input::getText() const {
+  return text;
+}
+
+inline stringstate Input::getState() const {
+  return state;
+}
+
+Input::Input(std::string Text, stringstate S) : text(Text), state(S) {}
+
+void Input::format() {
+  if (state == stringstate::plain_text) {
+    std::string textout;
+    transform(text.begin(), text.end(), text.begin(), angletize);
+    text.erase(remove_if(text.begin(), text.end(), isspace), text.end());
+    state = stringstate::codeable;
+  }
+  if (state == stringstate::codeable) {
+    transform(text.begin(), text.end(), text.begin(), toupper);
+    state = stringstate::codeable_upper;
+  }
+}
+
+// Match key length to the given text
 Input set_key_length(Input key_used, Input text_used) {
   if ((key_used.getState() == stringstate::codeable_upper) &&
       (text_used.getState() == stringstate::codeable_upper)) {
-    string new_key = text_used.getText();
+    std::string new_key = text_used.getText();
     int t = 0;
     for (char& ch : new_key) {
       int key_at = div(t, key_used.getText().length()).rem;
@@ -42,44 +74,4 @@ Input set_key_length(Input key_used, Input text_used) {
     return key_l;
   } else
     exit(1);
-}
-
-inline void Input::setText(string Text) {
-  text = Text;
-}
-
-inline void Input::setState(stringstate S) {
-  state = S;
-}
-
-void Input::setInput(string Text, stringstate S) {
-  text = Text;
-  state = S;
-}
-
-inline string Input::getText() const {
-  return text;
-}
-
-inline stringstate Input::getState() const {
-  return state;
-}
-
-Input::Input() {}
-
-Input::Input(string Text, stringstate S) {
-  setInput(Text, S);
-}
-
-void Input::format() {
-  if (state == stringstate::plain_text) {
-    string textout;
-    transform(text.begin(), text.end(), text.begin(), angletize);
-    text.erase(remove_if(text.begin(), text.end(), isspace), text.end());
-    state = stringstate::codeable;
-  }
-  if (state == stringstate::codeable) {
-    transform(text.begin(), text.end(), text.begin(), toupper);
-    state = stringstate::codeable_upper;
-  }
 }
