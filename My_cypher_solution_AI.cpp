@@ -80,5 +80,6 @@ int main() {
     kiirfile.close();
   } else
     std::cout << "A fájl nem nyitható meg!";
+  system("pause");
   return 0;
 }
