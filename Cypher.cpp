@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Cypher.h"
+#include "Input.h"
+#include <fstream>
 
 Cyphering::Cyphering(const Input& Key,
                      const Input& Text_to_code,
@@ -15,7 +17,7 @@ std::string Cyphering::cypher() {
     while (codetable[row].at(0) != ch) {
       row++;
     }
-    int column = codetable[0].find(key.getText().at(count));
+    size_t column = codetable[0].find(key.getText().at(count));
     returned.append(1, codetable[row].at(column));
     count++;
   }

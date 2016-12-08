@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Input.h"
+#include <algorithm>
 
 // Change hungarian special characters to their english basic counterparts, keep
 // english alphabetic characters, change everything else to whitespace for
@@ -66,7 +67,7 @@ Input set_key_length(Input key_used, Input text_used) {
     std::string new_key = text_used.getText();
     int t = 0;
     for (char& ch : new_key) {
-      int key_at = div(t, key_used.getText().length()).rem;
+      size_t key_at = div(t, key_used.getText().length()).rem;
       ch = key_used.getText().at(key_at);
       t++;
     }

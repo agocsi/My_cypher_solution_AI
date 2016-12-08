@@ -1,6 +1,8 @@
 #include "stdafx.h"
+#include "Input.h"
 #include "Cypher.h"
 #include <iostream>
+#include <fstream>
 
 // Match key length to the text length
 int main() {

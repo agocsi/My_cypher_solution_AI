@@ -1,9 +1,9 @@
 #pragma once
 #include <array>
-#include <fstream>
-#include "Input.h"
 
 typedef std::array<std::string, 26> ctable;
+
+class Input;
 
 // Inputs with the used codetable to do the actual cyphering
 class Cyphering {
